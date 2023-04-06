@@ -126,7 +126,7 @@
             />
 
             <SeekBar
-                android:id="@+id/seekBar"
+                android:id="@+id/btnFan"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:max="3"
@@ -191,30 +191,30 @@
             android:orientation="vertical"
             android:padding="10dp">
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_weight="10"
-            android:background="#44BBBB"
-            android:text="LED"
-            android:textSize="20dp"
-            android:textStyle="bold"
-            android:textColor="@android:color/white"
-            android:gravity="center"
-            android:layout_marginTop="10dp"
-            android:layout_marginBottom="20dp"/>
-        />
-        <com.github.angads25.toggle.widget.LabeledSwitch
-            android:id="@+id/btnLED"
-            android:layout_width="384dp"
-            android:layout_height="50dp"
-            android:textSize="20dp"
-            android:layout_marginBottom="10dp"
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="10"
+                android:background="#44BBBB"
+                android:text="LED"
+                android:textSize="20dp"
+                android:textStyle="bold"
+                android:textColor="@android:color/white"
+                android:gravity="center"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="20dp"/>
+            />
+            <com.github.angads25.toggle.widget.LabeledSwitch
+                android:id="@+id/btnLED"
+                android:layout_width="384dp"
+                android:layout_height="50dp"
+                android:textSize="20dp"
+                android:layout_marginBottom="10dp"
 
-            app:colorBorder="#1488DB"
-            app:on="false"
-            app:textOff="Off"
-            app:textOn="On" />
+                app:colorBorder="#1488DB"
+                app:on="false"
+                app:textOff="Off"
+                app:textOn="On" />
         </LinearLayout>
     </LinearLayout>
 
@@ -224,7 +224,7 @@
         android:layout_weight="20">
 
         <TextView
-            android:id="@+id/txtTemperature2"
+            android:id="@+id/txtAI"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_margin="10dp"
