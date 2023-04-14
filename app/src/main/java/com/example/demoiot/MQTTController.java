@@ -60,9 +60,8 @@ public class MQTTController extends AppCompatActivity {
     private String previousToggledItem = "";
 
 
-
-    private void resetUI(){
-        if (previousToggledItem.contains("led")){
+    private void resetUI() {
+        if (previousToggledItem.contains("led")) {
             displaySnackbar("Cannot change LED status");
             updateLED(previousLed);
         } else if (previousToggledItem.contains("fan")) {
@@ -81,17 +80,16 @@ public class MQTTController extends AppCompatActivity {
                         // Check response from sending message
                         if (isWaitingFromServer == 1) {
                             if (serverCounter.update()) {
-                                    if (numResentServer < resend) {
-                                        numResentServer += 1;
-                                        mqttModel.mqttAndroidClient.publish(topicSent, payloadSent);
+                                if (numResentServer < resend) {
+                                    numResentServer += 1;
+                                    mqttModel.mqttAndroidClient.publish(topicSent, payloadSent);
                                 } else {
                                     isWaitingFromServer = 0;
                                     Log.d("MQTT", "No response from server. Message rejected due to timeout");
                                     resetUI();
                                 }
                             }
-                        }
-                        else if(isWaitingFromServer == 2){
+                        } else if (isWaitingFromServer == 2) {
                             if (gatewayCounter.update()) {
                                 if (numResentGateway < resend) {
                                     numResentGateway += 1;
@@ -180,6 +178,16 @@ public class MQTTController extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 frequency = frequencySpinner.getSelectedItem().toString();
+                if (frequency.contains("30s")) {
+                    frequency = "30";
+                } else if (frequency.contains("1m")) {
+                    frequency = "60";
+                } else if (frequency.contains("2m")) {
+                    frequency = "120";
+                } else if (frequency.contains("5m")) {
+                    frequency = "300";
+                }
+
                 Log.d("MQTT", "Frequency change to " + frequency);
                 sendDataMQTT("KanNan312/feeds/iot.frequency", frequency);
             }
@@ -251,11 +259,9 @@ public class MQTTController extends AppCompatActivity {
 //                        ACK from gateway: set flag
                         isWaitingFromServer = 0;
                         Log.d("MQTT", "Receive ACK from gateway. Finished!");
-                        if(previousToggledItem.contains("led")){
-                            updateLED(payloadSent.toString());
+                        if (previousToggledItem.contains("led")) {
                             previousLed = payloadSent.toString();
                         } else if (previousToggledItem.contains("fan")) {
-                            updateFan(payloadSent.toString());
                             previousFan = payloadSent.toString();
                         }
 
