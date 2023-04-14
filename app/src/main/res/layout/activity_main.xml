@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/linear_layout"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -24,7 +25,62 @@
 
             />
 
+        <ImageView
+            android:id="@+id/dot_indicator"
+            android:layout_width="12dp"
+            android:layout_height="12dp"
+            android:layout_marginRight="12dp"
+            android:layout_marginStart="8dp"
+            android:src="@drawable/dot"
+            app:tint="#50C878" />
+
+
+
+
     </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="10"
+        android:gravity="center"
+        >
+
+        <!-- Selector Spinner -->
+
+        <TextView
+            android:id="@+id/selector_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="16dp"
+            android:layout_marginTop="0dp"
+            android:text="Select Data Frequency:"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <Spinner
+            android:id="@+id/frequency_spinner"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="0dp"
+            android:layout_marginLeft="0dp"
+            android:entries="@array/options_array"/>
+
+        <!-- Submit Button -->
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/submit_button"
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:text="Change"
+            android:background="@drawable/button_background"
+            android:layout_marginTop="0dp"
+            android:layout_marginLeft="0dp"
+            android:textColor="@color/white"
+            android:layout_alignParentEnd="true"
+
+           />
+
+    </LinearLayout>
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -55,7 +111,7 @@
                 android:layout_weight="10"
                 android:background="#1488DB"
                 android:gravity="center"
-                android:text="28°C"
+                android:text="27°C"
                 android:textColor="@color/white"
                 android:textSize="50dp"
                 android:textStyle="bold">
@@ -89,7 +145,7 @@
                 android:layout_weight="10"
                 android:background="#1488DB"
                 android:gravity="center"
-                android:text="28%"
+                android:text="27%"
                 android:textColor="@color/white"
                 android:textSize="50dp"
                 android:textStyle="bold">
@@ -123,7 +179,6 @@
                 android:gravity="center"
                 android:layout_marginTop="20dp"
                 android:layout_marginBottom="20dp"/>
-            />
 
             <SeekBar
                 android:id="@+id/btnFan"
@@ -134,7 +189,6 @@
                 android:progressDrawable="@drawable/seekbar_drawable"
                 android:splitTrack="false"
                 android:thumb="@drawable/seekbar_thumb"
-
                 />
 
             <LinearLayout
@@ -221,7 +275,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="20">
+        android:layout_weight="15">
 
         <TextView
             android:id="@+id/txtAI"
@@ -239,10 +293,4 @@
         </TextView>
     </LinearLayout>
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="10">
-
-    </LinearLayout>
 </LinearLayout>
