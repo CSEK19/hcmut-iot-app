@@ -1,7 +1,7 @@
 package com.example.demoiot;
 
 public class Counter {
-    private int n;
+    private final int n;
     private int currentCnt;
 
     public Counter(int n) {

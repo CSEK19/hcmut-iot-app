@@ -1,11 +1,9 @@
 package com.example.demoiot;
 
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
 import android.os.Bundle;
-import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -24,7 +22,7 @@ import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.eclipse.paho.client.mqttv3.MqttPersistenceException;
 
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
 public class MQTTController extends AppCompatActivity {
     private MQTTModel mqttModel;
@@ -42,18 +40,18 @@ public class MQTTController extends AppCompatActivity {
     private String last_will_message = "default last will message";
     private boolean isConnected = false; // Connection to gateway
 
-    private int connectionTimeout = 30;
-    private int serverTimeout = 5;
+    private final int connectionTimeout = 60;
+    private final int serverTimeout = 5;
     private boolean receiveConnectionStatus = false;
-    private Counter connectionCounter = new Counter(connectionTimeout);
-    private Counter serverCounter = new Counter(serverTimeout);
-    private int resend = 2;
+    private final Counter connectionCounter = new Counter(connectionTimeout);
+    private final Counter serverCounter = new Counter(serverTimeout);
+    private final int resend = 2;
     private int numResentServer = 0;
 
 
     // 2 - Hop Error Controller
-    private int gatewayTimeout = 7;
-    private Counter gatewayCounter = new Counter(gatewayTimeout);
+    private final int gatewayTimeout = 7;
+    private final Counter gatewayCounter = new Counter(gatewayTimeout);
     private int numResentGateway = 0;
     private String previousLed = "0";
     private String previousFan = "0";
@@ -77,8 +75,8 @@ public class MQTTController extends AppCompatActivity {
             public void run() {
                 while (true) {
                     try {
-                        // Check response from sending message
                         if (isWaitingFromServer == 1) {
+                            // Waiting from server
                             if (serverCounter.update()) {
                                 if (numResentServer < resend) {
                                     numResentServer += 1;
@@ -90,6 +88,7 @@ public class MQTTController extends AppCompatActivity {
                                 }
                             }
                         } else if (isWaitingFromServer == 2) {
+                            // Waiting from gateway
                             if (gatewayCounter.update()) {
                                 if (numResentGateway < resend) {
                                     numResentGateway += 1;
@@ -104,7 +103,7 @@ public class MQTTController extends AppCompatActivity {
 
                         // Check connection to gateway
                         if (isConnected) {
-                            if (receiveConnectionStatus == true) {
+                            if (receiveConnectionStatus) {
                                 connectionCounter.reset();
                                 receiveConnectionStatus = false;
                             } else {
@@ -116,6 +115,8 @@ public class MQTTController extends AppCompatActivity {
                                 }
                             }
                         }
+
+                        // Run each 1 second
                         Thread.sleep(1000);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
@@ -132,13 +133,11 @@ public class MQTTController extends AppCompatActivity {
 
     private void displaySnackbar(String message) {
         Snackbar.make(findViewById(R.id.linear_layout), message, Snackbar.LENGTH_LONG).show();
-        ;
     }
 
     private void modifyConnectStatus(boolean status) {
         ImageView dotIndicator = findViewById(R.id.dot_indicator);
-
-        if (status == false) {
+        if (!status) {
             dotIndicator.setColorFilter(ContextCompat.getColor(this, R.color.red));
         } else {
             dotIndicator.setColorFilter(ContextCompat.getColor(this, R.color.green));
@@ -153,27 +152,28 @@ public class MQTTController extends AppCompatActivity {
         initializeView();
         // Initialize model
         startMQTT();
-
+        // Initialize background thread
         startThread();
     }
 
 
     private void initializeView() {
         setContentView(R.layout.activity_main);
-        // set view elements
+
+        // Set view elements
         txtTemp = findViewById(R.id.txtTemperature);
         txtHumid = findViewById(R.id.txtHumidity);
         btnLED = findViewById(R.id.btnLED);
         btnFAN = findViewById(R.id.btnFan);
         txtAI = findViewById(R.id.txtAI);
-        modifyConnectStatus(false);
-
         frequencySpinner = findViewById(R.id.frequency_spinner);
         submitButton = findViewById(R.id.submit_button);
+        modifyConnectStatus(false);
+
+        // Selection button
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this, R.array.options_array, android.R.layout.simple_spinner_item);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         frequencySpinner.setAdapter(adapter);
-
         submitButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -193,11 +193,9 @@ public class MQTTController extends AppCompatActivity {
             }
         });
 
-
+        // LED button
         btnLED.setOnToggledListener((labeledSwitch, isOn) -> {
-
-            // Implement your switching logic here
-            if (isOn == true) {
+            if (isOn) {
                 sendDataMQTT("KanNan312/feeds/iot.led", "1");
             } else {
                 sendDataMQTT("KanNan312/feeds/iot.led", "0");
@@ -205,6 +203,7 @@ public class MQTTController extends AppCompatActivity {
             previousToggledItem = "led";
         });
 
+        // Fan button
         btnFAN.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
@@ -250,26 +249,26 @@ public class MQTTController extends AppCompatActivity {
                 String[] parts = message_txt.split(":");
                 String header = parts[0];
                 String payload = parts[1];
-//              ACK from adafruit server
+                // ACK from server
                 if (header.contains("app") && isWaitingFromServer == 1) {
                     isWaitingFromServer = 2;
                     Log.d("MQTT", "Receive ACK from server. Waiting for gateway...");
                 } else if (header.contains("gw")) {
                     if (topic.contains("iot.ack") && isWaitingFromServer == 2) {
-//                        ACK from gateway: set flag
+                        // ACK from gateway: set flag
                         isWaitingFromServer = 0;
                         Log.d("MQTT", "Receive ACK from gateway. Finished!");
+                        String previousStatus = payloadSent.toString().split(":")[1];
                         if (previousToggledItem.contains("led")) {
-                            previousLed = payloadSent.toString();
+                            previousLed = previousStatus;
                         } else if (previousToggledItem.contains("fan")) {
-                            previousFan = payloadSent.toString();
+                            previousFan = previousStatus;
                         }
-
                     } else if (topic.contains("iot.connection")) {
                         if (payload.contains("will")) {
                             last_will_message = payload.split("_")[1];
                         } else if (payload.contains("live_on")) {
-                            if (isConnected == false) {
+                            if (!isConnected) {
                                 displaySnackbar("Gateway connected");
                                 isConnected = true;
                                 modifyConnectStatus(true);
@@ -293,9 +292,7 @@ public class MQTTController extends AppCompatActivity {
                         updateAI(payload);
                     }
                 }
-
             }
-
         });
     }
 
@@ -309,7 +306,7 @@ public class MQTTController extends AppCompatActivity {
         msg.setQos(0);
         msg.setRetained(false);
 
-        byte[] b = value.getBytes(Charset.forName("UTF-8"));
+        byte[] b = value.getBytes(StandardCharsets.UTF_8);
         msg.setPayload(b);
 
         try {
@@ -319,8 +316,6 @@ public class MQTTController extends AppCompatActivity {
             numResentServer = 0;
             topicSent = topic;
             payloadSent = msg;
-
-
         } catch (MqttException e) {
             Log.e("MQTT", "Failed to publish message: " + e.getMessage(), e);
         }
@@ -344,11 +339,7 @@ public class MQTTController extends AppCompatActivity {
     }
 
     public void updateLED(String value) {
-        if (value.equals("1")) {
-            btnLED.setOn(true);
-        } else {
-            btnLED.setOn(false);
-        }
+        btnLED.setOn(value.equals("1"));
     }
 }
 
